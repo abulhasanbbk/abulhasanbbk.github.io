@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Abul Hasan</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
   <style>
     body {
       margin: 0;
@@ -17,6 +16,7 @@
     .container {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
       max-width: 1200px;
       margin: 40px auto;
       padding: 20px;
@@ -26,6 +26,8 @@
 
     .left-column {
       flex: 1;
+      min-width: 250px;
+      max-width: 100%;
       text-align: center;
       padding: 20px;
       border-right: 1px solid #eee;
@@ -41,12 +43,20 @@
 
     .right-column {
       flex: 2;
+      min-width: 300px;
+      max-width: 100%;
       padding: 20px;
     }
 
     h1 {
-      font-size: 2.2em;
+      font-size: 2em;
       margin-bottom: 5px;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
     }
 
     nav {
@@ -70,6 +80,23 @@
       color: #999;
       font-size: 0.9em;
     }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      .left-column {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+      }
+
+      nav a {
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -81,6 +108,7 @@
     </div>
 
     <div class="right-column">
+
       <section>
         <h2>About Me</h2>
         <p>
@@ -88,12 +116,17 @@
           Currently, I am working on the AIMed project at the Nuffield Department of Primary Care Health Sciences – University of Oxford.
         </p>
       </section>
-      <h2>A Brief Research Statement</h2>
-      <p>
-        My research lies at the intersection of machine learning, natural language processing (NLP), and
-healthcare informatics. This intersection has provided me with the opportunity to envision technological advancements for the safe deployment of these systems in critical domains through innovation in NLP. I aim to build safer, more reliable AI systems by advancing conditional text generation techniques, developing uncertainty quantification methods, and creating NLP-based verification frameworks. Through my work, I seek to bridge theoretical innovation with practical deployment, ensuring that AI systems are not only powerful but
-also trustworthy in high-stakes environments.
-      </p>
+
+      <section>
+        <h2>A Brief Research Statement</h2>
+        <p>
+          My research lies at the intersection of machine learning, natural language processing (NLP), and
+          healthcare informatics. This intersection has provided me with the opportunity to envision technological advancements for the safe deployment of these systems in critical domains through innovation in NLP.
+          I aim to build safer, more reliable AI systems by advancing conditional text generation techniques, developing uncertainty quantification methods, and creating NLP-based verification frameworks. Through my work, I seek to bridge theoretical innovation with practical deployment, ensuring that AI systems are not only powerful but
+          also trustworthy in high-stakes environments.
+        </p>
+      </section>
+
       <section>
         <h2>Contact</h2>
         <p>Email: abul.hasan@phc.ox.ac.uk</p>
