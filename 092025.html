@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MedAgentBench – Blog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f9f9;
+      color: #222;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 60px auto 40px auto; /* space below top nav */
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h1, h2, h3 {
+      color: #111;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      text-align: center;
+      color: #777;
+      font-size: 0.95em;
+      margin-bottom: 30px;
+    }
+
+    ul {
+      margin-left: 20px;
+    }
+
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    /* Top-right nav */
+    .top-nav {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+    }
+
+    .top-nav a {
+      text-decoration: none;
+      color: #0066cc;
+      font-weight: 500;
+      background: #eef6ff;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
+
+    .top-nav a:hover {
+      background: #d6eaff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top-right return button -->
+  <div class="top-nav">
+    <a href="index.html">Return to Homepage</a>
+  </div>
+
+  <div class="container">
+    <h1>MedAgentBench: Benchmarking Medical LLM Agents</h1>
+    <p class="date">24 September 2025</p>
+
+    <p><strong>Reference:</strong><br>
+      Su J, Luo S, Yang S, et al. <em>MedAgentBench: A Virtual EHR Environment to Benchmark Medical LLM Agents.</em> 
+      NEJM AI. 2025;1(3). DOI: <a href="https://doi.org/10.1056/AIdbp2500144" target="_blank">10.1056/AIdbp2500144</a>
+    </p>
+
+    <h2>🌐 What is MedAgentBench?</h2>
+    <p>
+      MedAgentBench is a benchmark designed to test medical large language model (LLM) agents inside a 
+      <strong>virtual electronic health record (EHR)</strong> environment. Instead of just answering static 
+      multiple-choice or QA questions, it evaluates how well models can act as <em>agents</em>—retrieving information, 
+      writing to an EHR, and completing multi-step workflows.
+    </p>
+
+    <h2>🏗️ How it Works</h2>
+    <ul>
+      <li>Environment: FHIR-compliant API supporting <code>GET</code>, <code>POST</code>, and <code>FINISH</code> actions.</li>
+      <li>Tasks: 300 clinician-written tasks across 10 categories (lab retrieval, medication management, referrals, documentation).</li>
+      <li>Data: 100 patient profiles with ~700k entries (labs, meds, diagnoses, vitals) derived from Stanford STARR.</li>
+      <li>Loop: Agents interact step-by-step (max 8 rounds). Each action must be valid JSON.</li>
+      <li>Evaluation: Strict <strong>pass@1</strong> (the first attempt must be fully correct).</li>
+    </ul>
+
+    <h2>📊 Findings</h2>
+    <p>
+      In evaluation of 12 models, <strong>Claude 3.5 Sonnet v2</strong> was the best performer (~69.7% success). 
+      Agents did well on information retrieval tasks but struggled with multi-step reasoning and structured writes. 
+      Common failures included malformed JSON, incomplete responses, and poor planning across multiple steps.
+    </p>
+
+    <h2>💡 Why it Matters</h2>
+    <p>
+      MedAgentBench shifts benchmarking from static QA toward <strong>interactive, workflow-based evaluation</strong>. 
+      It surfaces deployment challenges that matter in healthcare: handling structure, reliability, and multi-step reasoning. 
+      It also provides a public benchmark to accelerate research into safer and more effective medical agents.
+    </p>
+
+    <h2>🤔 Common Questions</h2>
+
+    <h3>1. What is the difference between agent orchestration and graphs?</h3>
+    <p>
+      - <strong>Agent orchestration</strong> refers to the logic that coordinates multiple agents. 
+      It decides which agent runs, in what order, and how they exchange information. 
+      Think of it like a conductor guiding musicians in an orchestra.<br><br>
+      - <strong>Graphs</strong> (like state graphs or workflow graphs) are one way to <em>implement</em> orchestration. 
+      Each node can represent an agent (retriever, verifier, summariser), and edges define how the state flows between them. 
+      In short: orchestration is the concept; a graph is one tool to achieve it.
+    </p>
+
+    <h3>2. How is orchestration built in MedAgentBench?</h3>
+    <p>
+      MedAgentBench uses a <strong>simple round-based loop</strong> instead of a graph framework. 
+      At each round, the system gives the agent the task and history, receives an action proposal (GET/POST/FINISH), 
+      validates it, executes it in the EHR environment, and updates the history. 
+      This loop is repeated until the task is finished or the step limit is reached.
+    </p>
+
+    <h3>3. Why do strict formats matter?</h3>
+    <p>
+      Many failures came from agents generating malformed JSON or invalid payloads. 
+      In high-stakes fields like healthcare, even a small format error can break a workflow. 
+      Benchmarks like MedAgentBench highlight the need for validators, sanitizers, or stricter schema enforcement 
+      when deploying LLMs as agents.
+    </p>
+
+    <a href="blogs.html" class="back-link">← Back to Blogs</a>
+  </div>
+</body>
+</html>
