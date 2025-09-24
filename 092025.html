@@ -145,6 +145,23 @@
       In short: orchestration is the concept; a graph is one tool to achieve it.
     </p>
 
-    <h3>2. How is orchestration built in MedAgentBench?</h3>
+     <h3>2. How is orchestration built in MedAgentBench?</h3>
     <p>
-      MedAgentBench uses a <strong>simple ro
+      MedAgentBench uses a <strong>simple round-based loop</strong> instead of a graph framework. 
+      At each round, the system gives the agent the task and history, receives an action proposal (GET/POST/FINISH), 
+      validates it, executes it in the EHR environment, and updates the history. 
+      This loop is repeated until the task is finished or the step limit is reached.
+    </p>
+
+    <h3>3. Why do strict formats matter?</h3>
+    <p>
+      Many failures came from agents generating malformed JSON or invalid payloads. 
+      In high-stakes fields like healthcare, even a small format error can break a workflow. 
+      Benchmarks like MedAgentBench highlight the need for validators, sanitizers, or stricter schema enforcement 
+      when deploying LLMs as agents.
+    </p>
+
+    <a href="blogs.html" class="back-link">← Back to Blogs</a>
+  </div>
+</body>
+</html>
