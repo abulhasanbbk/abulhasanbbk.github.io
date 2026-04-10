@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding Marginalization, Conditional Probability, and Double Sums with Dice</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121936;
+      --panel-2: #1a2348;
+      --text: #e9eefc;
+      --muted: #b9c3e6;
+      --accent: #8fb3ff;
+      --accent-2: #c7d8ff;
+      --border: #2a376c;
+      --code: #0f1530;
+      --good: #9be7b0;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #0d1430 60%, #0b1020);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .container {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 80px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(143,179,255,0.16), rgba(199,216,255,0.08));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.2;
+      margin: 0 0 14px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+      margin-top: 10px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      color: var(--accent-2);
+      margin-top: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--text);
+    }
+
+    .lead {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+
+    .section {
+      background: rgba(18, 25, 54, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px 24px;
+      margin-top: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .equation {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      overflow-x: auto;
+      font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif;
+      font-size: 1.08rem;
+      color: var(--accent-2);
+    }
+
+    .equation code {
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      background: rgba(143,179,255,0.08);
+      border-radius: 0 12px 12px 0;
+      color: var(--muted);
+      margin: 14px 0;
+    }
+
+    .grid-wrap {
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    table.grid {
+      border-collapse: collapse;
+      min-width: 560px;
+      width: 100%;
+      background: var(--code);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .grid th,
+    .grid td {
+      border: 1px solid var(--border);
+      text-align: center;
+      padding: 10px;
+      font-size: 0.98rem;
+    }
+
+    .grid th {
+      background: var(--panel-2);
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .valid {
+      background: rgba(155,231,176,0.16);
+      color: var(--good);
+      font-weight: 700;
+    }
+
+    .invalid {
+      color: #8e98bf;
+    }
+
+    ul {
+      margin: 10px 0 14px 20px;
+      color: var(--muted);
+    }
+
+    li { margin-bottom: 8px; }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0;
+    }
+
+    .steps li {
+      margin: 0 0 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      counter-increment: step;
+      content: "Step " counter(step);
+      display: inline-block;
+      font-size: 0.86rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .math-inline {
+      font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif;
+      color: var(--accent-2);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .hero, .section { padding: 22px 18px; }
+      .container { width: min(100% - 20px, 920px); padding-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>Understanding Marginalization, Conditional Probability, and Double Sums with Dice</h1>
+      <p class="lead">A step-by-step explanation of Judea Pearl’s early probability ideas: the law of total probability, conditional probability as reasoning under an assumption, and how a triangular grid makes a double sum visually obvious.</p>
+    </section>
+
+    <section class="section">
+      <h2>Marginalization and the law of total probability</h2>
+      <p>Pearl starts from a simple idea: if an event <span class="math-inline">A</span> can happen through several mutually exclusive and exhaustive cases <span class="math-inline">B₁, B₂, …, Bₙ</span>, then the total probability of <span class="math-inline">A</span> is obtained by adding the joint probabilities across all cases.</p>
+
+      <div class="equation"><code>P(A) = Σᵢ P(A, Bᵢ)</code></div>
+
+      <p>This is the law of total probability. When we sum over all the possible values of <span class="math-inline">B</span>, we are <strong>marginalizing over B</strong>, and the result <span class="math-inline">P(A)</span> is called the marginal probability of <span class="math-inline">A</span>.</p>
+
+      <div class="note">For two cases only, this becomes <span class="math-inline">P(A) = P(A, B) + P(A, ¬B)</span>. The general sum is just the same idea extended to many cases.</div>
+    </section>
+
+    <section class="section">
+      <h2>Linking equation (1.4) to the dice example</h2>
+      <p>Let <span class="math-inline">A</span> be the event “the two dice show the same number.” First choose a single proposition:</p>
+      <ul>
+        <li><span class="math-inline">B</span> = “the first die is 1”</li>
+        <li><span class="math-inline">¬B</span> = “the first die is not 1”</li>
+      </ul>
+
+      <div class="equation"><code>P(A) = P(A, B) + P(A, ¬B)</code></div>
+
+      <p>Now interpret both terms:</p>
+      <ul>
+        <li><span class="math-inline">P(A, B)</span> means both dice are equal and the first die is 1, so the only outcome is <span class="math-inline">(1,1)</span>, which has probability <span class="math-inline">1/36</span>.</li>
+        <li><span class="math-inline">P(A, ¬B)</span> means both dice are equal and the first die is not 1, so the possible outcomes are <span class="math-inline">(2,2), (3,3), (4,4), (5,5), (6,6)</span>, with total probability <span class="math-inline">5/36</span>.</li>
+      </ul>
+
+      <div class="equation"><code>P(A) = 1/36 + 5/36 = 6/36 = 1/6</code></div>
+
+      <p>If we split the event into all six possibilities for the first die instead, then we get the more general form:</p>
+
+      <div class="equation"><code>P(A) = Σᵢ₌₁⁶ P(A, Bᵢ)</code></div>
+
+      <p>where <span class="math-inline">Bᵢ</span> means “the first die equals <span class="math-inline">i</span>.” Each term is then <span class="math-inline">P((i,i)) = 1/36</span>, so:</p>
+
+      <div class="equation"><code>P(A) = 6 × (1/36) = 1/6</code></div>
+    </section>
+
+    <section class="section">
+      <h2>Conditional probability as belief under an assumption</h2>
+      <p>Pearl emphasizes that conditional probabilities are the basic objects of Bayesian reasoning. The expression <span class="math-inline">P(A | B)</span> means: how much do we believe <span class="math-inline">A</span> if <span class="math-inline">B</span> is known with certainty?</p>
+
+      <div class="equation"><code>P(A | B)</code></div>
+
+      <p>If learning that <span class="math-inline">B</span> is true does not change our belief in <span class="math-inline">A</span>, then <span class="math-inline">A</span> and <span class="math-inline">B</span> are independent:</p>
+
+      <div class="equation"><code>P(A | B) = P(A)</code></div>
+
+      <p>More generally, if:</p>
+
+      <div class="equation"><code>P(A | B, C) = P(A | C)</code></div>
+
+      <p>then <span class="math-inline">A</span> and <span class="math-inline">B</span> are conditionally independent given <span class="math-inline">C</span>. Once <span class="math-inline">C</span> is known, learning <span class="math-inline">B</span> adds no extra information about <span class="math-inline">A</span>.</p>
+    </section>
+
+    <section class="section">
+      <h2>Why Pearl treats conditional probability as more basic</h2>
+      <p>Traditionally, conditional probability is defined from the joint probability:</p>
+
+      <div class="equation"><code>P(A | B) = P(A, B) / P(B)</code></div>
+
+      <p>Pearl reverses the emphasis. He argues that what we usually know empirically is not the joint probability table, but statements of the form “given this context, how likely is that event?” In this view, <span class="math-inline">B</span> acts like a context or frame of knowledge, and <span class="math-inline">A | B</span> means the event <span class="math-inline">A</span> within the world where <span class="math-inline">B</span> is taken as true.</p>
+
+      <p>Joint probabilities are then built from conditional probabilities by the product rule:</p>
+
+      <div class="equation"><code>P(A, B) = P(A | B) P(B)</code></div>
+
+      <p>For the dice example, if <span class="math-inline">A</span> is “the dice are equal” and <span class="math-inline">Bᵢ</span> is “the first die is <span class="math-inline">i</span>,” then:</p>
+
+      <div class="equation"><code>P(A, Bᵢ) = P(A | Bᵢ) P(Bᵢ)</code></div>
+
+      <p>Since <span class="math-inline">P(Bᵢ) = 1/6</span> and <span class="math-inline">P(A | Bᵢ) = 1/6</span> because the second die must also equal <span class="math-inline">i</span>, we get:</p>
+
+      <div class="equation"><code>P(A, Bᵢ) = (1/6)(1/6) = 1/36</code></div>
+    </section>
+
+    <section class="section">
+      <h2>The derivation of P(X &gt; Y) using summation notation</h2>
+      <p>Now let <span class="math-inline">X</span> be the first die and <span class="math-inline">Y</span> the second die. We want to compute the probability that the first die is greater than the second:</p>
+
+      <div class="equation"><code>P(X &gt; Y)</code></div>
+
+      <ol class="steps">
+        <li>
+          <p>Condition on all possible values of <span class="math-inline">X</span>:</p>
+          <div class="equation"><code>P(X &gt; Y) = Σᵢ₌₁⁶ P(X &gt; Y | X = i) P(X = i)</code></div>
+        </li>
+        <li>
+          <p>Because the first die is fair:</p>
+          <div class="equation"><code>P(X = i) = 1/6</code></div>
+          <div class="equation"><code>P(X &gt; Y) = (1/6) Σᵢ₌₁⁶ P(X &gt; Y | X = i)</code></div>
+        </li>
+        <li>
+          <p>If <span class="math-inline">X = i</span>, then the event <span class="math-inline">X &gt; Y</span> becomes <span class="math-inline">Y &lt; i</span>:</p>
+          <div class="equation"><code>P(X &gt; Y | X = i) = P(Y &lt; i)</code></div>
+          <div class="equation"><code>P(X &gt; Y) = (1/6) Σᵢ₌₁⁶ P(Y &lt; i)</code></div>
+        </li>
+        <li>
+          <p>Expand <span class="math-inline">P(Y &lt; i)</span> as a sum over all values of <span class="math-inline">Y</span> smaller than <span class="math-inline">i</span>:</p>
+          <div class="equation"><code>P(Y &lt; i) = Σⱼ₌₁ⁱ⁻¹ P(Y = j)</code></div>
+        </li>
+        <li>
+          <p>Because the second die is fair:</p>
+          <div class="equation"><code>P(Y = j) = 1/6</code></div>
+          <div class="equation"><code>P(X &gt; Y) = (1/6) Σᵢ₌₁⁶ ( Σⱼ₌₁ⁱ⁻¹ 1/6 )</code></div>
+          <div class="equation"><code>P(X &gt; Y) = (1/36) Σᵢ₌₁⁶ Σⱼ₌₁ⁱ⁻¹ 1</code></div>
+        </li>
+        <li>
+          <p>The inner sum adds 1 exactly <span class="math-inline">i - 1</span> times, so:</p>
+          <div class="equation"><code>Σⱼ₌₁ⁱ⁻¹ 1 = i - 1</code></div>
+          <div class="equation"><code>Σᵢ₌₁⁶ Σⱼ₌₁ⁱ⁻¹ 1 = Σᵢ₌₁⁶ (i - 1)</code></div>
+        </li>
+        <li>
+          <p>Compute the final sum:</p>
+          <div class="equation"><code>Σᵢ₌₁⁶ (i - 1) = 0 + 1 + 2 + 3 + 4 + 5 = 15</code></div>
+          <div class="equation"><code>P(X &gt; Y) = 15/36 = 5/12</code></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>Why the double sum becomes a single sum</h2>
+      <p>The identity</p>
+      <div class="equation"><code>Σᵢ₌₁⁶ Σⱼ₌₁ⁱ⁻¹ 1 = Σᵢ₌₁⁶ (i - 1)</code></div>
+      <p>simply means that for each fixed <span class="math-inline">i</span>, the inner sum counts how many values of <span class="math-inline">j</span> satisfy <span class="math-inline">1 ≤ j ≤ i - 1</span>. There are exactly <span class="math-inline">i - 1</span> such values. So the inner counting operation can be replaced by the number of terms being counted.</p>
+    </section>
+
+    <section class="section">
+      <h2>Geometric interpretation: a triangular grid</h2>
+      <p>A very intuitive way to see the double sum is to place all 36 dice outcomes into a <span class="math-inline">6 × 6</span> grid. Let the row index be <span class="math-inline">i = X</span> and the column index be <span class="math-inline">j = Y</span>. The condition <span class="math-inline">X &gt; Y</span> means exactly <span class="math-inline">j &lt; i</span>, which corresponds to all cells below the diagonal.</p>
+
+      <div class="grid-wrap">
+        <table class="grid" aria-label="Triangular grid showing outcomes where X is greater than Y">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Y = 1</th>
+              <th>Y = 2</th>
+              <th>Y = 3</th>
+              <th>Y = 4</th>
+              <th>Y = 5</th>
+              <th>Y = 6</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>X = 1</th>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+            </tr>
+            <tr>
+              <th>X = 2</th>
+              <td class="valid">X</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+            </tr>
+            <tr>
+              <th>X = 3</th>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+            </tr>
+            <tr>
+              <th>X = 4</th>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+            </tr>
+            <tr>
+              <th>X = 5</th>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="invalid">0</td>
+              <td class="invalid">0</td>
+            </tr>
+            <tr>
+              <th>X = 6</th>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="valid">X</td>
+              <td class="invalid">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Each row contributes exactly <span class="math-inline">i - 1</span> valid cells:</p>
+      <div class="equation"><code>0 + 1 + 2 + 3 + 4 + 5 = 15</code></div>
+      <p>That is why:</p>
+      <div class="equation"><code>Σᵢ₌₁⁶ Σⱼ₌₁ⁱ⁻¹ 1 = 15</code></div>
+      <p>and therefore:</p>
+      <div class="equation"><code>P(X &gt; Y) = 15/36 = 5/12</code></div>
+    </section>
+
+    <section class="section">
+      <h2>Final intuition</h2>
+      <p>The outer sum runs over the possible values of the first die. The inner sum counts how many values of the second die satisfy the condition once the first die is fixed. This is the essence of assumption-based reasoning: fix a context, calculate what happens in that context, weight it by how likely the context is, and add everything together.</p>
+
+      <div class="note">In Pearl’s language, conditional probability is reasoning inside a context, and marginalization is what you do when you combine all possible contexts back into one final belief.</div>
+    </section>
+
+    <p class="footer">This page is designed as a single self-contained HTML file for easy use with GitHub Pages.</p>
+  </main>
+</body>
+</html>
